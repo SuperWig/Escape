@@ -2,4 +2,9 @@
 
 
 #include "EscapeGameModeBase.h"
+#include "EscapeCharacter.h"
 
+AEscapeGameModeBase::AEscapeGameModeBase()
+{
+	DefaultPawnClass = AEscapeCharacter::StaticClass();
+}
