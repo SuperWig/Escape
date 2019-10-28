@@ -49,7 +49,7 @@ void AEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AEscapeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AEscapeCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &ACharacter::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AEscapeCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ACharacter::AddControllerYawInput);
 	//Controller specific bindings
 	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AEscapeCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AEscapeCharacter::TurnRate);
