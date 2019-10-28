@@ -31,6 +31,8 @@ void AEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction(TEXT("Grab"), IE_Pressed, this, &AEscapeCharacter::Grab);
+	PlayerInputComponent->BindAction(TEXT("Grab"), IE_Released, this, &AEscapeCharacter::Release);
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AEscapeCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AEscapeCharacter::MoveRight);
@@ -71,4 +73,30 @@ void AEscapeCharacter::LookUpRate(float Value)
 	{
 		AddControllerYawInput(LookUpSpeed * Value * GetWorld()->GetDeltaSeconds());
 	}
+}
+
+void AEscapeCharacter::Grab()
+{
+	const FName TraceTag = TEXT("GrabTraceTag");
+	GetWorld()->DebugDrawTraceTag = TraceTag;
+	FCollisionQueryParams Params(TraceTag, false, this);
+
+	const FVector Start = GetPawnViewLocation();
+	const FVector End = Start + GetViewRotation().Vector() * 500;
+
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Camera, Params);
+	AActor* HitActor = HitResult.GetActor();
+	if (HitActor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitActor->GetName())
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Didn't hit anything"))
+	}
+}
+
+void AEscapeCharacter::Release()
+{
 }
