@@ -12,8 +12,13 @@ AEscapeCharacter::AEscapeCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bUseControllerRotationPitch = true;
 
 	PhysicsHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandle"));
+	GrabPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrabPosition"));
+
+	GrabPosition->SetupAttachment(RootComponent);
+	GrabPosition->SetRelativeLocation(FVector(PickupDistance,0,70.f));
 }
 
 // Called when the game starts or when spawned
@@ -29,9 +34,11 @@ void AEscapeCharacter::Tick(float DeltaTime)
 
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		FVector Location =  GetActorLocation() + GetControlRotation().Vector() * PickupDistance;
-		Location.Z += 70.f;
-		PhysicsHandle->SetTargetLocation(Location);
+		PhysicsHandle->SetTargetLocationAndRotation
+		(
+			GrabPosition->GetComponentLocation(),
+			GrabPosition->GetComponentRotation()
+		);
 	}
 }
 
@@ -102,7 +109,8 @@ void AEscapeCharacter::Grab()
 		if (HitActor && HitActor->ActorHasTag(TEXT("Pickup")))
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-			PhysicsHandle->GrabComponentAtLocation(HitComponent, HitResult.BoneName, HitComponent->GetCenterOfMass());
+			GrabPosition->SetWorldRotation(HitComponent->GetComponentRotation());
+			PhysicsHandle->GrabComponentAtLocationWithRotation(HitComponent, HitResult.BoneName, HitResult.Location, HitComponent->GetComponentRotation());
 		}
 	}
 }
