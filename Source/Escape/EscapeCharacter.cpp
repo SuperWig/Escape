@@ -3,13 +3,17 @@
 
 #include "EscapeCharacter.h"
 #include "Components/InputComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Engine/World.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 
 // Sets default values
 AEscapeCharacter::AEscapeCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	PhysicsHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandle"));
 }
 
 // Called when the game starts or when spawned
@@ -77,26 +81,36 @@ void AEscapeCharacter::LookUpRate(float Value)
 
 void AEscapeCharacter::Grab()
 {
-	const FName TraceTag = TEXT("GrabTraceTag");
-	GetWorld()->DebugDrawTraceTag = TraceTag;
-	FCollisionQueryParams Params(TraceTag, false, this);
-
-	const FVector Start = GetPawnViewLocation();
-	const FVector End = Start + GetViewRotation().Vector() * 500;
-
-	FHitResult HitResult;
-	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Camera, Params);
-	AActor* HitActor = HitResult.GetActor();
-	if (HitActor)
+	if (!PhysicsHandle->GrabbedComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *HitActor->GetName())
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Didn't hit anything"))
+		const FName TraceTag = TEXT("GrabTraceTag");
+		GetWorld()->DebugDrawTraceTag = TraceTag;
+		FCollisionQueryParams Params(TraceTag, false, this);
+
+		const FVector Start = GetPawnViewLocation();
+		const FVector End = Start + GetViewRotation().Vector() * 500;
+
+		FHitResult HitResult;
+		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Camera, Params);
+
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor && HitActor->ActorHasTag(TEXT("Pickup")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Grabbing: %s"), *HitActor->GetName())
+				PhysicsHandle->GrabComponentAtLocation(HitResult.GetComponent(), HitResult.BoneName, HitResult.GetComponent()->GetCenterOfMass());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Didn't hit anything"))
+		}
 	}
 }
 
 void AEscapeCharacter::Release()
 {
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Releasing %s"), *PhysicsHandle->GrabbedComponent->GetName())
+			PhysicsHandle->ReleaseComponent();
+	}
 }

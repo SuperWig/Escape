@@ -37,4 +37,5 @@ public:
 private:
 	float TurnSpeed = 45.f;
 	float LookUpSpeed = 45.f;
+	class UPhysicsHandleComponent* PhysicsHandle;
 };
