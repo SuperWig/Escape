@@ -37,5 +37,7 @@ public:
 private:
 	float TurnSpeed = 45.f;
 	float LookUpSpeed = 45.f;
+	float PickupDistance = 300.f;
+	
 	class UPhysicsHandleComponent* PhysicsHandle;
 };

@@ -26,6 +26,13 @@ void AEscapeCharacter::BeginPlay()
 void AEscapeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		FVector Location =  GetActorLocation() + GetControlRotation().Vector() * PickupDistance;
+		Location.Z += 70.f;
+		PhysicsHandle->SetTargetLocation(Location);
+	}
 }
 
 // Called to bind functionality to input
@@ -83,12 +90,10 @@ void AEscapeCharacter::Grab()
 {
 	if (!PhysicsHandle->GrabbedComponent)
 	{
-		const FName TraceTag = TEXT("GrabTraceTag");
-		GetWorld()->DebugDrawTraceTag = TraceTag;
-		FCollisionQueryParams Params(TraceTag, false, this);
+		FCollisionQueryParams Params(NAME_None, false, this);
 
 		const FVector Start = GetPawnViewLocation();
-		const FVector End = Start + GetViewRotation().Vector() * 500;
+		const FVector End = Start + GetViewRotation().Vector() * PickupDistance;
 
 		FHitResult HitResult;
 		GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Camera, Params);
@@ -96,12 +101,8 @@ void AEscapeCharacter::Grab()
 		AActor* HitActor = HitResult.GetActor();
 		if (HitActor && HitActor->ActorHasTag(TEXT("Pickup")))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Grabbing: %s"), *HitActor->GetName())
-				PhysicsHandle->GrabComponentAtLocation(HitResult.GetComponent(), HitResult.BoneName, HitResult.GetComponent()->GetCenterOfMass());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Didn't hit anything"))
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+			PhysicsHandle->GrabComponentAtLocation(HitComponent, HitResult.BoneName, HitComponent->GetCenterOfMass());
 		}
 	}
 }
@@ -110,7 +111,6 @@ void AEscapeCharacter::Release()
 {
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Releasing %s"), *PhysicsHandle->GrabbedComponent->GetName())
-			PhysicsHandle->ReleaseComponent();
+		PhysicsHandle->ReleaseComponent();
 	}
 }
