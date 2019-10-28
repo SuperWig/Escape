@@ -21,12 +21,6 @@ AEscapeCharacter::AEscapeCharacter()
 	GrabPosition->SetRelativeLocation(FVector(PickupDistance,0,70.f));
 }
 
-// Called when the game starts or when spawned
-void AEscapeCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 // Called every frame
 void AEscapeCharacter::Tick(float DeltaTime)
 {
@@ -109,6 +103,7 @@ void AEscapeCharacter::Grab()
 		if (HitActor && HitActor->ActorHasTag(TEXT("Pickup")))
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+			HitComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 			GrabPosition->SetWorldRotation(HitComponent->GetComponentRotation());
 			PhysicsHandle->GrabComponentAtLocationWithRotation(HitComponent, HitResult.BoneName, HitResult.Location, HitComponent->GetComponentRotation());
 		}
@@ -119,6 +114,7 @@ void AEscapeCharacter::Release()
 {
 	if (PhysicsHandle->GrabbedComponent)
 	{
+		PhysicsHandle->GrabbedComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 		PhysicsHandle->ReleaseComponent();
 	}
 }
