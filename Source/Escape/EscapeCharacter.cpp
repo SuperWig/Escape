@@ -1,5 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright(c) 2019 Daniel Marshall
+// SPDX-License-Identifier: MIT
 
 #include "EscapeCharacter.h"
 #include "Components/InputComponent.h"
